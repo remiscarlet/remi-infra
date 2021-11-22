@@ -1,0 +1,50 @@
+version: "3"  # optional since v1.27.0
+services:
+  shoko_server:
+    container_name: shokoserver
+    image: shokoanime/server:daily
+    restart: always
+    environment:
+      - "PUID=${UID}"
+      - "PGID=${GID}"
+      - "TZ=Etc/UTC"
+    ports:
+      - "8111:8111"
+    volumes:
+      - "${HOME}/.shoko:/home/shoko/.shoko"
+      - /media/daiyousei/anime:/mnt/anime
+      - /media/daiyousei/anime_movies:/mnt/anime_movies
+      - /media/daiyousei/shoko/import:/mnt/import
+      - /media/daiyousei/rtorrent:/mnt/rtorrent
+
+  flood:
+    container_name: flood
+    hostname: flood
+    image: jesec/flood
+    user: "${UID}:${GID}"
+    restart: unless-stopped
+    command: --port 3001
+    depends_on:
+      - rtorrent
+    environment:
+      HOME: /config
+    volumes:
+      - /home/cirno/dlconfig:/config
+      - /media/daiyousei:/data
+    ports:
+      - 0.0.0.0:3001:3001
+
+  rtorrent:
+    container_name: rtorrent
+    hostname: rtorrent
+    image: jesec/rtorrent
+    user: "${UID}:${GID}"
+    restart: unless-stopped
+    command: -o network.port_range.set=6881-6881,system.daemon.set=true
+    environment:
+      HOME: /config
+    volumes:
+      - /home/cirno/dlconfig:/config
+      - /media/daiyousei:/data
+    ports:
+      - 0.0.0.0:6881:6881

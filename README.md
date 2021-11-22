@@ -1,3 +1,3 @@
-# remi-terraform
+# remi-infra
 
 Stuff.
