@@ -13,6 +13,7 @@ services:
     volumes:
       - "${HOME}/.shoko:/home/shoko/.shoko"
       - /media/daiyousei/anime:/mnt/anime
+      - /media/daiyousei/anime_bd:/mnt/anime_bd
       - /media/daiyousei/anime_movies:/mnt/anime_movies
       - /media/daiyousei/shoko/import:/mnt/import
       - /media/daiyousei/rtorrent:/mnt/rtorrent
@@ -48,3 +49,35 @@ services:
       - /media/daiyousei:/data
     ports:
       - 0.0.0.0:6881:6881
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - 0.0.0.0:9100:9100
+
+  telegraf:
+    container_name: telegraf
+    image: telegraf
+    hostname: cirno
+    ports:
+      - 0.0.0.0:9273:9273
+    volumes:
+      - $PWD/../../configs/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/dopcker.sock
+      - /:/hostfs:ro
+    environment:
+      HOST_ETC: /hostfs/etc
+      HOST_PROC: /hostfs/proc
+      HOST_SYS: /hostfs/sys
+      HOST_VAR: /hostfs/var
+      HOST_RUN: /hostfs/run
+      HOST_MOUNT_PREFIX: /hostfs
+
