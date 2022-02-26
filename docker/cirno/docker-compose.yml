@@ -1,22 +1,19 @@
 version: "3"  # optional since v1.27.0
 services:
-  shoko_server:
-    container_name: shokoserver
-    image: shokoanime/server:daily
-    restart: always
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
     environment:
-      - "PUID=${UID}"
-      - "PGID=${GID}"
-      - "TZ=Etc/UTC"
-    ports:
-      - "8111:8111"
+      - "PUID=1000"
+      - "PGID=1000"
+      - TZ=US/Eastern
+      - JELLYFIN_PublishedServerUrl=10.38.85.12 #optional
     volumes:
-      - "${HOME}/.shoko:/home/shoko/.shoko"
-      - /media/daiyousei/anime:/mnt/anime
-      - /media/daiyousei/anime_bd:/mnt/anime_bd
-      - /media/daiyousei/anime_movies:/mnt/anime_movies
-      - /media/daiyousei/shoko/import:/mnt/import
-      - /media/daiyousei/rtorrent:/mnt/rtorrent
+      - /media/daiyousei:/media/daiyousei
+      - /media/daiyousei/jellyfin:/config
+    ports:
+      - 8096:8096
+    restart: unless-stopped
 
   flood:
     container_name: flood
@@ -53,11 +50,11 @@ services:
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
+    restart: unless-stopped
     command:
       - '--path.rootfs=/host'
     network_mode: host
     pid: host
-    restart: unless-stopped
     volumes:
       - '/:/host:ro,rslave'
     ports:
@@ -67,6 +64,7 @@ services:
     container_name: telegraf
     image: telegraf
     hostname: cirno
+    restart: unless-stopped
     ports:
       - 0.0.0.0:9273:9273
     volumes:
