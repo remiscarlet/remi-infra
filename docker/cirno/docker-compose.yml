@@ -57,8 +57,6 @@ services:
     pid: host
     volumes:
       - '/:/host:ro,rslave'
-    ports:
-      - 0.0.0.0:9100:9100
 
   telegraf:
     container_name: telegraf
