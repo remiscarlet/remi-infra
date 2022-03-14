@@ -1,5 +1,23 @@
 version: "3"  # optional since v1.27.0
 services:
+  shoko_server:
+    container_name: shokoserver
+    image: shokoanime/server:daily
+    restart: always
+    environment:
+      - "PUID=${UID}"
+      - "PGID=${GID}"
+      - "TZ=US/Eastern"
+    ports:
+      - "8111:8111"
+    volumes:
+      - "${HOME}/.shoko:/home/shoko/.shoko"
+      - /media/daiyousei/anime:/mnt/anime
+      - /media/daiyousei/anime_bd:/mnt/anime_bd
+      - /media/daiyousei/anime_movies:/mnt/anime_movies
+      - /media/daiyousei/shoko/import:/mnt/import
+      - /media/daiyousei/rtorrent:/mnt/rtorrent
+
   jellyfin:
     image: lscr.io/linuxserver/jellyfin
     container_name: jellyfin
@@ -7,13 +25,13 @@ services:
       - "PUID=1000"
       - "PGID=1000"
       - TZ=US/Eastern
-      - JELLYFIN_PublishedServerUrl=10.38.85.12 #optional
+      - JELLYFIN_PublishedServerUrl=10.38.85.11 #optional
     volumes:
       - /media/daiyousei:/media/daiyousei
-      - /media/daiyousei/jellyfin:/config
+      - /home/cirno/jellyfin-config:/config
+      #- /media/daiyousei/jellyfin:/config
     ports:
-      - 8096:8096
-    restart: unless-stopped
+      - 18096:8096
 
   flood:
     container_name: flood
